@@ -1,1 +1,2 @@
 # PracticcasPS
+NO SÉ POR QUÉ LAS PRACTICAS 8 Y 12 NO SE VEN
