@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <h1>chat</h1>
+    <div id="nomUsuario">
+        <p>Ingresa tu nombre:</p>
+        <input type="text" id="userName" placeholder="Ingresa un nombre">
+    </div>
+    <br><label for="userColor">Selecciona un color</label>
+    <br>
+    <input type="color" id="userColor">
+    <br>
+    <br>
+    <div id="chatContent"></div>
+    <div id="escribiendo"></div>
+    <input type="text" id="mensaje">
+    <input type="button" value="Enviar" id="btnEnviar">
+
+    
+</body>
+
+<script>
+var socket = io();
+socket.on('connect',()=>{
+    //console.log('Conectado');
+    socket.emit('usuarioNuevo', ()=>{
+        usuario: "PabloSS"
+    });
+});
+
+socket.on('disconnect', ()=>{
+    console.log('Se perdió la conexión');
+});
+
+socket.on('mensajeNuevo',(data)=>{
+    showMensaje(data.usuario, data.mensaje, data.color);
+})
+
+document.getElementById("mensaje").addEventListener("onkeypress", ()=>{
+    document.getElementById("escribiendo").innerHTML = "Alguien está escribiendo";
+});
+
+document.getElementById("btnEnviar").addEventListener("click",()=>{
+    var mensaje = document.getElementById("mensaje").value;
+    var nombre = document.getElementById("userName").value;
+    var tColor = document.getElementById("userColor").value;
+    socket.emit('mensajeNuevo', {
+        usuario: nombre,
+        mensaje,
+        color: tColor
+    },(res)=>{
+        showMensaje("Tú", res.mensaje, res.color);
+    });
+
+
+})
+function showMensaje(usuario, mensaje, color){
+    document.getElementById("chatContent").innerHTML += `<span style="color: ${color};">${usuario}: ${mensaje} </span><br> `;
+}
+
+document.getElementById("mensaje").addEventListener("keypress", ()=>{
+    socket.emit('escribiendo',{
+        usuario: document.getElementById("userName").value
+    });
+});
+
+socket.on('escribiendo',(data)=>{
+    setTimeout(function(){
+        document.getElementById("escribiendo").innerHTML = data.usuario + " está escribiendo."; 
+    }, 100);
+    setTimeout(function(){
+        document.getElementById("escribiendo").innerHTML = data.usuario + " está escribiendo.."; 
+    }, 300);
+    setTimeout(function(){
+        document.getElementById("escribiendo").innerHTML = data.usuario + " está escribiendo..."; 
+    }, 500);
+    setTimeout(function(){
+        document.getElementById("escribiendo").innerHTML = ""; 
+    }, 900);
+});
+
+</script>
+</html>
